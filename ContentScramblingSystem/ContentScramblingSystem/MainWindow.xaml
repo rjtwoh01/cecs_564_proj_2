@@ -1,0 +1,19 @@
+﻿<Window x:Class="ContentScramblingSystem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ContentScramblingSystem"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Button x:Name="btnSelectFile" Content="Select File" HorizontalAlignment="Left" Height="31" Margin="26,7,0,0" VerticalAlignment="Top" Width="120" Click="BtnSelectFile_Click"/>
+        <Button x:Name="btnEncrypt" Content="Encrypt" HorizontalAlignment="Left" Height="31" Margin="151,7,0,0" VerticalAlignment="Top" Width="120" Click="BtnEncrypt_Click"/>
+        <Button x:Name="btnDecrypt" Content="Decrypt" HorizontalAlignment="Left" Height="31" Margin="276,7,0,0" VerticalAlignment="Top" Width="120" Click="BtnDecrypt_Click"/>
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="347" Margin="26,48,0,0" VerticalAlignment="Top" Width="737">
+            <Label x:Name="lblFileText" Content=""/>
+        </Border>
+        <Button x:Name="btnAttack" Content="Attack" HorizontalAlignment="Left" Height="31" Margin="401,7,0,0" VerticalAlignment="Top" Width="120" Click="BtnAttack_Click"/>
+
+    </Grid>
+</Window>

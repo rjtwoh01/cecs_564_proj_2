@@ -1,0 +1,15 @@
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\bin\Debug\AffineEncryption.exe.config
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\bin\Debug\AffineEncryption.exe
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\bin\Debug\AffineEncryption.pdb
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption.csprojAssemblyReference.cache
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\MainWindow.g.cs
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\App.g.cs
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption_MarkupCompile.cache
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption_MarkupCompile.lref
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\MainWindow.baml
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption.g.resources
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption.Properties.Resources.resources
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption.csproj.GenerateResource.cache
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption.csproj.CoreCompileInputs.cache
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption.exe
+C:\Users\illod\OneDrive\Documents\School\Spring 2019\Cryptography\Project 1\AffineEncryption\AffineEncryption\obj\Debug\AffineEncryption.pdb
