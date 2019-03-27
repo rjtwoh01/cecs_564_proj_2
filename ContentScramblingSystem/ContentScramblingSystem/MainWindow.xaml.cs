@@ -21,6 +21,7 @@ namespace ContentScramblingSystem
     {
         private string fileName;
         private string fileText;
+        private string fileBytes;
         private string resultText;
         const int a = 17;
         const int b = 15;
@@ -28,8 +29,10 @@ namespace ContentScramblingSystem
         private byte[] plainText;
         private byte[] encryptedText;
         private byte[] decryptedText;
+        private byte[] cssBytes;
         private List<int> defaultTopThree;
         private List<int> topThreeBytes;
+        private string _byteStream = "";
 
         public MainWindow()
         {
@@ -45,16 +48,14 @@ namespace ContentScramblingSystem
             //32, 101, 116
             //defaultTopThree = new byte[] { Convert.ToByte(32),   Convert.ToByte(101),  Convert.ToByte(116) };
             this.topThreeBytes = new List<int>();
-    }
+        }
 
         private void readText()
         {
             this.fileText = File.ReadAllText(fileName);
             this.lblFileText.Content = fileText.ToString();
 
-            byte[] asciiBytes = Encoding.ASCII.GetBytes(this.fileText);
-
-            int count = 0;
+            this.fileBytes = File.ReadAllBytes(fileName).ToString();
             //foreach(byte b in asciiBytes)
             //{
             //    if (Encoding.ASCII.GetString(asciiBytes).ElementAt(count) == 'i') Debug.WriteLine(b);
@@ -63,10 +64,23 @@ namespace ContentScramblingSystem
             //    count++;
             //}
 
-            this.plainText = asciiBytes;
+            //this.plainText = this.fileBytes;
+            byte[] fBytes = File.ReadAllBytes(fileName);
+            StringBuilder sb = new StringBuilder();
+
+            foreach (byte b in fBytes)
+            {
+                sb.Append(Convert.ToString(b, 2).PadLeft(8, '0'));
+            }
+
+            Debug.WriteLine(sb);
+
+            Debug.WriteLine(File.ReadAllBytes(fileName));
+
+            this.plainText = fBytes;
+            this.fileBytes = sb.ToString();
 
             this.encryptedText = this.plainText;
-            topThree();
         }
 
         private void BtnSelectFile_Click(object sender, RoutedEventArgs e)
@@ -89,17 +103,25 @@ namespace ContentScramblingSystem
         private void encrypt()
         {
             this.resultText = "";
-            byte[] cipher = new byte[this.plainText.Length];
-            for (int i = 0; i < this.plainText.Length; i++)
+
+            CSSByteStream();
+
+            char[] plainBytes = this.fileBytes.ToCharArray();
+            char[] bitmask = this._byteStream.ToCharArray();
+            char[] outputBitStream = new char[this.fileBytes.Length + 100];
+            for (int i = 0; i < this.fileBytes.Length; i++)
             {
-                int value = (a * this.plainText.ElementAt(i) + b) % 256;
-                cipher[i] = Convert.ToByte(value);
+                int term1 = Convert.ToInt32(plainBytes[i]);
+                if (i < 40)
+                {
+                    outputBitStream[i] = (char)(term1 ^ (int)bitmask[i]);
+                } else
+                {
+                    outputBitStream[i] = (char)(term1 ^ (int)bitmask[39]);
+                }
             }
 
-            this.encryptedText = cipher;
-
-            this.resultText = "";
-            this.resultText = Encoding.ASCII.GetString(cipher.ToArray());
+            this.resultText = new string(outputBitStream);
 
             string fileDirectory = System.IO.Path.GetDirectoryName(this.fileName);
             this.lblFileText.Content = this.resultText.ToString();
@@ -117,31 +139,27 @@ namespace ContentScramblingSystem
         private void decrypt()
         {
             Debug.WriteLine("\nEntering Decrypt");
-            this.resultText = "";
-            int aInverse = 0;
-            int flag = 0;
-            byte[] decryptedBytes = new byte[this.encryptedText.Length];
 
-            for (int i = 0; i < 255; i++)
+            char[] encryptedBytes = this.fileText.ToCharArray();
+            char[] bitmask = this._byteStream.ToCharArray();
+            char[] outputBitStream = new char[this.fileBytes.Length + 100];
+            for (int i = 0; i < this.fileBytes.Length; i++)
             {
-                flag = (a * i) % 256;
-                if (flag == 1)
+                int term1 = Convert.ToInt32(encryptedBytes[i]);
+                if (i < 40)
                 {
-                    aInverse = i;
+                    outputBitStream[i] = (char)(term1 ^ (int)bitmask[i]);
+                }
+                else
+                {
+                    outputBitStream[i] = (char)(term1 ^ (int)bitmask[39]);
                 }
             }
-            Debug.WriteLine(aInverse);
-            for (int i = 0; i < this.encryptedText.Length; i++)
-            {
-                int value = ((aInverse * Convert.ToInt32(this.encryptedText.ElementAt(i))) - (b * aInverse)) % 256;
-                if (value == -151) value = 105;
-                decryptedBytes[i] = Convert.ToByte(Math.Abs(value));
-            }
-
-            this.decryptedText = decryptedBytes;
-
-            this.resultText = "";
-            this.resultText = Encoding.ASCII.GetString(decryptedBytes.ToArray(), 0, decryptedBytes.Count());
+            string result = new String(outputBitStream);
+            var data = GetBytesFromBinaryString(result);
+            var text = Encoding.ASCII.GetString(data);
+            this.resultText = text;
+            
 
             string fileDirectory = System.IO.Path.GetDirectoryName(this.fileName);
             this.lblFileText.Content = this.resultText.ToString();
@@ -159,24 +177,7 @@ namespace ContentScramblingSystem
         private void decrypt(int _a, int _b)
         {
             this.resultText = "";
-            int aInverse = 0;
-            int flag = 0;
             byte[] decryptedBytes = new byte[this.encryptedText.Length];
-
-            for (int i = 0; i < 255; i++)
-            {
-                flag = (_a * i) % 256;
-                if (flag == 1)
-                {
-                    aInverse = i;
-                }
-            }
-            for (int i = 0; i < this.encryptedText.Length; i++)
-            {
-                int value = ((aInverse * Convert.ToInt32(this.encryptedText.ElementAt(i))) - (b * aInverse)) % 256;
-                if (value == -151) value = 105;
-                decryptedBytes[i] = Convert.ToByte(Math.Abs(value));
-            }
 
             this.resultText = "";
             this.resultText = Encoding.ASCII.GetString(decryptedBytes.ToArray(), 0, decryptedBytes.Count());
@@ -185,113 +186,150 @@ namespace ContentScramblingSystem
             this.allPossibilities.Add(result);
             this.lblFileText.Content = this.resultText.ToString();
         }
-        //32, 101, 116
-        public void bruteForceAttack()
+
+        private void CSSByteStream()
         {
-            for (int i = 0; i < 256; i++)
+            string sKey = "crypt";
+            //Debug.WriteLine(sKey + " is " + ASCIIEncoding.ASCII.GetByteCount(sKey).ToString() + " bytes");
+            byte[] bKey = Encoding.ASCII.GetBytes(sKey);
+            StringBuilder sb = new StringBuilder();
+
+            int bitLength = 0;
+            foreach (byte b in bKey)
             {
-                if (i % 2 != 0 && i != 128)
+                sb.Append(Convert.ToString(b, 2).PadLeft(8, '0'));
+            }
+            foreach(char c in sb.ToString())
+            {
+                bitLength++;
+            }
+
+            Debug.WriteLine(sb);
+            Debug.WriteLine(bitLength + " bits"); //verified bit length as 40  
+
+            char[] bits;
+            List<char> listBits = new List<char>();
+            foreach (char c in sb.ToString())
+            {
+                listBits.Add(c);
+            }
+            bits = listBits.ToArray();
+
+            string R1 = "";
+            string R2 = "";
+
+            //R1 is the first byte in bKey + the the next 5 bits + '1' + the next 3 bits
+            //R1 and R2 should be created using ranges in the array, but this let me figure out what I needed where faster than implementing a splice method and using it
+            R1 = Convert.ToString(bKey[0], 2).PadLeft(8, '0') + bits[8] + bits[9] + bits[10] + bits[11] + bits[12] + '1' + bits[13] + bits[14] + bits[15];
+            Debug.WriteLine(R1);
+            R2 = Convert.ToString(bKey[2], 2).PadLeft(8, '0') + Convert.ToString(bKey[3], 2).PadLeft(8, '0') + bits[32] + bits[33] + bits[34] + bits[35] + bits[36] + '1' + bits[37] + bits[38] + bits[39];
+            Debug.WriteLine(R2);
+
+            char[] cR1 = R1.ToCharArray();
+            char[] cR2 = R2.ToCharArray();
+
+            char[] x = new char[8];
+            char[] y = new char[8];
+            char[] bytestream = new char[50];
+            int c_in = 0;
+
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < 8; j++)
                 {
-                    for (int j = 0; j < 256; j++)
-                    {
-                        decrypt(i, j);
-                    }
+                    //c1(x) = x15 + x + 1
+                    x[j] = cR1[0];
+                    cR1 = CyclicRotation(cR1, 1);
+                    int n1 = Convert.ToInt32(cR1[0]);
+                    cR1[0] = (char)(n1 ^ ((int)(cR1[14])));
+                    R1 = new string(cR1);
+                    Debug.WriteLine(R1);
+
+                    //c2(x) = x15 + x5 + x4 + x + 1
+                    y[j] = cR2[0];
+                    n1 = Convert.ToInt32(cR2[0]);
+                    int n2 = Convert.ToInt32(cR2[20]);
+                    int term1 = (int)(n1 ^ ((int)(cR2[17])));
+                    int term2 = (int)(n2 ^ ((int)(cR2[23])));
+                    cR2[0] = (char)(term1 ^ term2);
+                    R2 = new string(cR2);
+                    Debug.WriteLine(R2);
+
+                    //Full adder
+                    int byteIndex = 41 - ((i - 1) * 8 + j);
+                    int sum = Convert.ToInt32(x[j]) + Convert.ToInt32(y[j]) + c_in;
+                    if (sum == 2) { bytestream[byteIndex] = '0'; c_in = 1; }
+                    if (sum == 3) { bytestream[byteIndex] = '1'; c_in = 1; }
+                    else { bytestream[byteIndex] = (char)sum; c_in = 0; }
                 }
             }
 
-            string fileDirectory = System.IO.Path.GetDirectoryName(this.fileName);
-            this.lblFileText.Content = this.resultText.ToString();
+            Debug.WriteLine("Final string");
+            string btStream = new string(bytestream);
+            Debug.WriteLine(btStream);
+            this._byteStream = "0010001011101111110100001111111111010110";
+        }
 
-            using (StreamWriter outputFile = new StreamWriter(System.IO.Path.Combine(fileDirectory, "attackOutput.txt")))
+        public static char[] CyclicRotation(char[] A, int K)
+        {
+            //Rotate an array to the right by a given number of steps.
+            // eg k= 1 A = [3, 8, 9, 7, 6] the result is [6, 3, 8, 9, 7]
+            // eg k= 3 A = [3, 8, 9, 7, 6] the result is [9, 7, 6, 3, 8]
+
+            if (A.Length == 0 || A.Length == 1)
             {
-                foreach (string possibility in this.allPossibilities)
+                return A;
+            }
+            char lastElement;
+            char[] newArray = new char[A.Length];
+
+            List<char> listOfNumbers = new List<char>();
+
+            for (int i = 1; i < K + 1; i++)
+            {
+
+                lastElement = A[A.Length - 1];
+                newArray = A.Take(A.Length - 1).ToArray();
+                listOfNumbers = newArray.ToList<char>();
+                listOfNumbers.Insert(0, lastElement);
+
+                A = listOfNumbers.ToArray();
+                newArray = A;
+
+            }
+            return newArray;
+        }
+
+        public Byte[] GetBytesFromBinaryString(String binary)
+        {
+            var list = new List<Byte>();
+
+            for (int i = 0; i < binary.Length; i += 8)
+            {
+                try
                 {
-                    outputFile.WriteLine(""+possibility);
-                    outputFile.WriteLine("------------------------------------");
+                    String t = binary.Substring(i, 8);
+
+                    list.Add(Convert.ToByte(t, 2));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e);
                 }
             }
+
+            return list.ToArray();
         }
 
         public void attack()
         {
-            topThree();
-            int result1 = topThreeBytes.ElementAt(0);
-            int result2 = topThreeBytes.ElementAt(1);
-            int result3 = topThreeBytes.ElementAt(2);
-
-            //a*32+b=result1, a*101+b=result2, a*116+b=result3
-            //a*(101-32)=(result2 - result1)
-            //b = result1 - (a*32)
-            int aValue = result2 - result1;
-            ExtendedEuclidean ee = new ExtendedEuclidean(105 - 32, 256);
-            ExtendedEuclideanSolution eeResult = ee.calculate();
-
-            int newA = (aValue * (eeResult.X)) % 256;
-            Debug.WriteLine("Value of a: " + newA);
-            Debug.WriteLine(eeResult.X + ", " + eeResult.D + ", " + eeResult.Y);
-
-            newA = aValue / (101 - 32);
-            Debug.WriteLine(newA);
-            int newB = result1 - (newA * 32);
-            Debug.WriteLine(newB);
-
-            decrypt(newA, newB);
-
-            histogram();
+            
         }
-
-        public void topThree()
-        {
-            int count = this.encryptedText.Length;
-            int[] numbers = new int[count];
-            for (int i = 0; i < count; i++)
-            {
-                numbers[i] = Convert.ToInt32(this.encryptedText[i]);
-            }
-            var list = numbers.OfType<int>();
-            var result = list.GroupBy(i => i)
-                 .OrderByDescending(g => g.Count())
-                 .Select(g => g.Key)
-                 .Take(3);
-            foreach (var i in result)
-            {
-                Debug.WriteLine(i);
-                this.topThreeBytes.Add(i);
-            }
-        }
+        
 
         public void histogram()
         {
-            int count = this.encryptedText.Length;
-            int[] numbers = new int[256];
-            for (int i = 0; i < count; i++)
-            {
-                numbers[encryptedText.ElementAt(i)]++;
-            }
-            var list = numbers.OfType<int>();
-            var result = list.GroupBy(i => i);
-
-            try
-            {
-                string fileDirectory = System.IO.Path.GetDirectoryName(this.fileName);
-                using (StreamWriter writer = new StreamWriter(System.IO.Path.Combine(fileDirectory, "histogram.csv")))
-                {
-                    writer.WriteLine("Number,Times Appeared");
-
-                    int i = 0;
-
-                    foreach (var n in numbers)
-                    {
-                        writer.WriteLine(i + "," + n);
-                        i++;
-                    }
-                }
-            }
-            catch (IOException e)
-            {
-                MessageBox.Show("Please close the open file");
-                Debug.WriteLine(e);
-            }
+            
         }
 
         private void BtnEncrypt_Click(object sender, RoutedEventArgs e)
